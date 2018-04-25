@@ -26,33 +26,33 @@ class GetMaleFemaleData(object):
 		male_test_lable = np.zeros(male_test_data.shape[0])
 		male_train_data = male_data[0:-test_data_len-1]
 		male_train_lable = np.zeros(male_train_data.shape[0])
-		print 'male_test_data.shape = '+str(male_test_data.shape)
-		print 'male_test_lable.shape = '+str(male_test_lable.shape)
-		print 'male_test_lable = '+str(male_test_lable)
-		print 'male_train_data.shape = '+str(male_train_data.shape)
-		print 'male_train_lable.shape = '+str(male_train_lable.shape)
-		print 'male_train_lable = '+str(male_train_lable)
+		# print 'male_test_data.shape = '+str(male_test_data.shape)
+		# print 'male_test_lable.shape = '+str(male_test_lable.shape)
+		# print 'male_test_lable = '+str(male_test_lable)
+		# print 'male_train_data.shape = '+str(male_train_data.shape)
+		# print 'male_train_lable.shape = '+str(male_train_lable.shape)
+		# print 'male_train_lable = '+str(male_train_lable)
 
 		female_test_data = female_data[-test_data_len-1:-1]
 		female_test_lable = np.ones(female_test_data.shape[0])
 		female_train_data = female_data[0:-test_data_len-1]
 		female_train_lable = np.ones(female_train_data.shape[0])
-		print '\nfemale_test_data.shape = '+str(female_test_data.shape)
-		print 'female_test_lable.shape = '+str(female_test_lable.shape)
-		print 'female_test_lable = '+str(female_test_lable)
-		print 'female_train_data.shape = '+str(female_train_data.shape)
-		print 'female_train_lable.shape = '+str(female_train_lable.shape)
-		print 'female_train_lable = '+str(female_train_lable)
+		# print '\nfemale_test_data.shape = '+str(female_test_data.shape)
+		# print 'female_test_lable.shape = '+str(female_test_lable.shape)
+		# print 'female_test_lable = '+str(female_test_lable)
+		# print 'female_train_data.shape = '+str(female_train_data.shape)
+		# print 'female_train_lable.shape = '+str(female_train_lable.shape)
+		# print 'female_train_lable = '+str(female_train_lable)
 
 
 		self.train_data = np.vstack((male_train_data,female_train_data))
 		self.train_lable = np.hstack((male_train_lable,female_train_lable))
 		self.test_data = np.vstack((male_test_data,female_test_data))
 		self.test_lable = np.hstack((male_test_lable,female_test_lable))
-		print 'self.train_data.shape = '+str(self.train_data.shape)
-		print 'self.train_lable.shape = '+str(self.train_lable.shape)
-		print 'self.test_data.shape = '+str(self.test_data.shape)
-		print 'self.test_lable.shape = '+str(self.test_lable.shape)
+		# print 'self.train_data.shape = '+str(self.train_data.shape)
+		# print 'self.train_lable.shape = '+str(self.train_lable.shape)
+		# print 'self.test_data.shape = '+str(self.test_data.shape)
+		# print 'self.test_lable.shape = '+str(self.test_lable.shape)
 		self.train_data_index = 0
 
 	def next_train_batch(self, batch_size):
@@ -69,7 +69,7 @@ class GetMaleFemaleData(object):
 	def get_test_data(self):
 		return self.test_data, self.test_lable
 		pass
-		
+
 def main():
 	male_dir = sys.argv[1]#'/home/ysq/YSQWork/DeepLearning/data/FemaleMaleFace_30x30/1_Male.npy'
 	female_dir = sys.argv[2]#'/home/ysq/YSQWork/DeepLearning/data/FemaleMaleFace_30x30/0_Female.npy'
