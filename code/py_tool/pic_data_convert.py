@@ -5,8 +5,7 @@ import argparse
 
 def save_pic2npy(image_dir):
 	if not os.path.exists(image_dir) :
-		print "error, can not find directer: "+image_dir
-		exit(0)
+		raise IOError("error, can not find directer: "+image_dir)
 	image = np.zeros((1,),np.uint8)
 	for file in os.listdir(image_dir):
 		if file.endswith(".jpg") or file.endswith(".png"):
@@ -24,11 +23,9 @@ def save_pic2npy(image_dir):
 def load_npy2pic(image_dir):
 	if os.path.exists(image_dir) :
 		if not image_dir.endswith(".npy"):
-			print "Please input file path end with \".npy\""
-			exit(0)
+			raise ValueError('Please input file path end with ".npy"')
 	else :
-		print "error, can not find file: "+image_dir
-		exit(0)
+		raise ValueError("error, can not find file: "+image_dir)
 	image = np.load(image_dir)
 	print image.shape
 	for i in range(image.shape[0]):
@@ -57,7 +54,7 @@ def main():
 
 if __name__ == "__main__":
 	main()
-	# image = image.ravel()`
+	# image = image.ravel()
 	# for root, dirs, files in os.walk("./"):  
 	# 	print(root)
 	# 	print(dirs)
