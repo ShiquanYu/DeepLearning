@@ -23,9 +23,9 @@ class GetMaleFemaleData(object):
 		test_data_len = 50
 
 		male_test_data = male_data[-test_data_len-1:-1]
-		male_test_lable = np.zeros(male_test_data.shape[0])
+		male_test_lable = np.zeros(male_test_data.shape[0], dtype = np.int)
 		male_train_data = male_data[0:-test_data_len-1]
-		male_train_lable = np.zeros(male_train_data.shape[0])
+		male_train_lable = np.zeros(male_train_data.shape[0], dtype = np.int)
 		# print 'male_test_data.shape = '+str(male_test_data.shape)
 		# print 'male_test_lable.shape = '+str(male_test_lable.shape)
 		# print 'male_test_lable = '+str(male_test_lable)
@@ -34,9 +34,9 @@ class GetMaleFemaleData(object):
 		# print 'male_train_lable = '+str(male_train_lable)
 
 		female_test_data = female_data[-test_data_len-1:-1]
-		female_test_lable = np.ones(female_test_data.shape[0])
+		female_test_lable = np.ones(female_test_data.shape[0], dtype = np.int)
 		female_train_data = female_data[0:-test_data_len-1]
-		female_train_lable = np.ones(female_train_data.shape[0])
+		female_train_lable = np.ones(female_train_data.shape[0], dtype = np.int)
 		# print '\nfemale_test_data.shape = '+str(female_test_data.shape)
 		# print 'female_test_lable.shape = '+str(female_test_lable.shape)
 		# print 'female_test_lable = '+str(female_test_lable)

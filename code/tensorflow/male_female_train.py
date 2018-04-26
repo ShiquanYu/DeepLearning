@@ -25,14 +25,14 @@ def main():
 	
 	#声明输入图片数据，类别
 	x = tf.placeholder('float',[None,30,30,3])
-	y_ = tf.placeholder('float',[None])
+	y_ = tf.placeholder('int32',[None])
 	#第一层卷积层
 	W_conv1 = weight_variable([5, 5, 3, 64])
 	b_conv1 = bias_variable([64])
 	#进行卷积操作，并添加relu激活函数
 	conv1 = tf.nn.relu(conv2d(x,W_conv1) + b_conv1)
 	# pool1
-	pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 3, 3, 1], padding='SAME', name='pool1')	#TODO changed get shape(10, 10)
+	pool1 = tf.nn.max_pool(conv1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')	#TODO changed get shape(15, 15)
 	# norm1
 	norm1 = tf.nn.lrn(pool1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,name='norm1')
 	#第二层卷积层
@@ -42,7 +42,7 @@ def main():
 	# norm2
 	norm2 = tf.nn.lrn(conv2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,name='norm2')
 	# pool2
-	pool2 = tf.nn.max_pool(norm2, ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool2')	#TODO changed get shape(5, 5)
+	pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1],strides=[1, 3, 3, 1], padding='SAME', name='pool2')	#TODO changed get shape(5, 5)
 
 	#全连接层
 	#权值参数
@@ -70,21 +70,24 @@ def main():
 	#输出层，使用softmax进行多分类
 	W_fc2 = weight_variable([192,1])
 	b_fc2 = bias_variable([1])
-	y_conv=tf.maximum(tf.nn.softmax(tf.matmul(fc1_drop, W_fc2) + b_fc2),1e-30)
+	y = tf.matmul(fc1_drop, W_fc2) + b_fc2
+	# y_conv=tf.maximum(tf.nn.softmax(tf.matmul(fc1_drop, W_fc2) + b_fc2),1e-30)
 
 	#补丁，防止y等于0，造成log(y)计算出-inf
 	#y1 = tf.maximum(y_conv,1e-30)
 
 	#代价函数
-	# cross_entropy = -tf.reduce_sum(y_*tf.log(y))
 	# cross_entropy = -tf.reduce_sum(y_*tf.log(y_conv))
-	cross_entropy = tf.reduce_mean(y_*tf.log(y_conv))
+	cross_entropy = tf.losses.sparse_softmax_cross_entropy(labels=y_, logits=y)
+	# cross_entropy = tf.reduce_mean(y_*tf.log(y_conv))
 	#使用Adam优化算法来调整参数
-	train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+	train_step = tf.train.AdamOptimizer(0.5).minimize(cross_entropy)
 	
 	#测试正确率
-	correct_prediction = tf.equal(y_conv, y_)
-	accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+	# correct_prediction = tf.equal(y_conv, y_)
+	# accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+	correct_prediction = tf.equal(y, y_)
+	accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 	#保存模型训练数据
 	saver = tf.train.Saver()
@@ -100,14 +103,14 @@ def main():
 
 	#进行训练
 	start_time = time.time()
-	for i in xrange(2000):
+	for i in range(1000):
 		#获取训练数据
 		#print i,'1'
-		batch_xs, batch_ys = male_female_data_set.next_train_batch(50)
+		batch_xs, batch_ys = male_female_data_set.next_train_batch(100)
 		#print i,'2'
 
 		#每迭代100个 batch，对当前训练数据进行测试，输出当前预测准确率
-		if i%100 == 0:
+		if i%1000 == 0:
 			#print "test accuracy %g"%accuracy.eval(feed_dict={x: test_images, y_: test_labels, keep_prob: 1.0})
 			train_accuracy = accuracy.eval(feed_dict={x:batch_xs, y_: batch_ys, keep_prob: 1.0})
 			print "step %d, training accuracy %g"%(i, train_accuracy)
