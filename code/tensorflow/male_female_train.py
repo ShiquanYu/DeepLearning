@@ -27,8 +27,8 @@ def main():
 	x = tf.placeholder('float',[None,30,30,3])	
 	y_ = tf.placeholder('float',[None,2])
 	#第一层卷积层
-	W_conv1 = weight_variable([3, 3, 3, 36])	#[5, 5, 3, 64]
-	b_conv1 = bias_variable([36])				#[64]
+	W_conv1 = weight_variable([5, 5, 3, 64])	#[5, 5, 3, 64]
+	b_conv1 = bias_variable([64])				#[64]
 	#进行卷积操作，并添加relu激活函数
 	conv1 = tf.nn.relu(conv2d(x,W_conv1) + b_conv1)
 	# pool1
@@ -36,29 +36,29 @@ def main():
 	# norm1
 	norm1 = tf.nn.lrn(pool1, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,name='norm1')
 	#第二层卷积层
-	W_conv2 = weight_variable([3,3,36,36])		#[5,5,64,64]
-	b_conv2 = bias_variable([36])				#[64]
+	W_conv2 = weight_variable([5,5,64,64])		#[5,5,64,64]
+	b_conv2 = bias_variable([64])				#[64]
 	conv2 = tf.nn.relu(conv2d(norm1,W_conv2) + b_conv2)
 	# norm2
 	norm2 = tf.nn.lrn(conv2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,name='norm2')
 	# pool2
-	pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1],strides=[1, 3, 3, 1], padding='SAME', name='pool2')	#TODO changed get shape(5, 5) ksize=[1, 3, 3, 1],strides=[1, 2, 2, 1]
+	pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool2')	#TODO changed get shape(5, 5) ksize=[1, 3, 3, 1],strides=[1, 2, 2, 1]
 
 	#全连接层
 	#权值参数
-	W_fc1 = weight_variable([5*5*36,216])	#([8*8*64,384])
+	W_fc1 = weight_variable([8*8*64,384])	#([8*8*64,384])
 	#偏置值
-	b_fc1 = bias_variable([216])
+	b_fc1 = bias_variable([384])
 	#将卷积的产出展开
-	pool2_flat = tf.reshape(pool2,[-1,5*5*36])
+	pool2_flat = tf.reshape(pool2,[-1,8*8*64])
 	#神经网络计算，并添加relu激活函数
 	fc1 = tf.nn.relu(tf.matmul(pool2_flat,W_fc1) + b_fc1)
 	
 	#全连接第二层
 	#权值参数
-	W_fc2 = weight_variable([216,108])
+	W_fc2 = weight_variable([384,192])
 	#偏置值
-	b_fc2 = bias_variable([108])
+	b_fc2 = bias_variable([192])
 	#神经网络计算，并添加relu激活函数
 	fc2 = tf.nn.relu(tf.matmul(fc1,W_fc2) + b_fc2)
 
@@ -68,7 +68,7 @@ def main():
 	fc1_drop = tf.nn.dropout(fc2,keep_prob)
 	
 	#输出层，使用softmax进行多分类
-	W_fc2 = weight_variable([108,2])
+	W_fc2 = weight_variable([192,2])
 	b_fc2 = bias_variable([2])
 	# y = tf.matmul(fc1_drop, W_fc2) + b_fc2
 	y_conv=tf.maximum(tf.nn.softmax(tf.matmul(fc1_drop, W_fc2) + b_fc2),1e-30)
@@ -77,11 +77,12 @@ def main():
 	#y1 = tf.maximum(y_conv,1e-30)
 
 	#代价函数
-	cross_entropy = -tf.reduce_sum(y_*tf.log(y_conv))
+	# cross_entropy = -tf.reduce_sum(y_*tf.log(y_conv))
+	cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_*tf.log(y_conv), reduction_indices=[1]))
 	# cross_entropy = tf.losses.sparse_softmax_cross_entropy(labels=y_, logits=y)
 	# cross_entropy = tf.reduce_mean(y_*tf.log(y_conv))
 	#使用Adam优化算法来调整参数
-	train_step = tf.train.AdamOptimizer(0.5).minimize(cross_entropy)
+	train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
 	
 	#测试正确率
 	correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(y_,1))
@@ -98,21 +99,22 @@ def main():
 	sess.run(tf.global_variables_initializer())
 
 
-	male_dir = '/home/ysq/YSQWork/DeepLearning/data/FemaleMaleFace_30x30/1_Male.npy'	#sys.argv[1]#
-	female_dir = '/home/ysq/YSQWork/DeepLearning/data/FemaleMaleFace_30x30/0_Female.npy'	#sys.argv[2]#
+	male_dir = '../../data/FemaleMaleFace_30x30/1_Male.npy'	#sys.argv[1]#
+	female_dir = '../../data/FemaleMaleFace_30x30/0_Female.npy'	#sys.argv[2]#
 	male_female_data_set = get_data.GetMaleFemaleData(male_dir, female_dir)
 	test_images,test_labels = male_female_data_set.get_test_data()
 
 	#进行训练
 	start_time = time.time()
-	for i in range(1000):
+	for i in range(20000):
 		#获取训练数据
 		#print i,'1'
 		batch_xs, batch_ys = male_female_data_set.next_train_batch(100)
+		# print batch_ys
 		#print i,'2'
 
 		#每迭代100个 batch，对当前训练数据进行测试，输出当前预测准确率
-		if i%100 == 0:
+		if i%1000 == 0:
 			#print "test accuracy %g"%accuracy.eval(feed_dict={x: test_images, y_: test_labels, keep_prob: 1.0})
 			train_accuracy = accuracy.eval(feed_dict={x:batch_xs, y_: batch_ys, keep_prob: 1.0})
 			print "step %d, training accuracy %g"%(i, train_accuracy)
@@ -122,7 +124,7 @@ def main():
 			start_time = end_time
 
 
-		if (i+1)%1000 == 0:
+		if (i+1)%10000 == 0:
 			#输出整体测试数据的情况
 			avg = 0
 			for j in xrange(20):

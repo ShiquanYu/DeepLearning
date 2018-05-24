@@ -84,8 +84,8 @@ class GetMaleFemaleData(object):
 		pass
 
 def main():
-	male_dir = '/home/ysq/YSQWork/DeepLearning/data/FemaleMaleFace_30x30/1_Male.npy'	#sys.argv[1]#'/home/ysq/YSQWork/DeepLearning/data/FemaleMaleFace_30x30/1_Male.npy'
-	female_dir = '/home/ysq/YSQWork/DeepLearning/data/FemaleMaleFace_30x30/0_Female.npy'	#sys.argv[2]#'/home/ysq/YSQWork/DeepLearning/data/FemaleMaleFace_30x30/0_Female.npy'
+	male_dir = '../../data/FemaleMaleFace_30x30/1_Male.npy'	#sys.argv[1]#'/home/ysq/YSQWork/DeepLearning/data/FemaleMaleFace_30x30/1_Male.npy'
+	female_dir = '../../data/FemaleMaleFace_30x30/0_Female.npy'	#sys.argv[2]#'/home/ysq/YSQWork/DeepLearning/data/FemaleMaleFace_30x30/0_Female.npy'
 	data_get = GetMaleFemaleData(male_dir, female_dir)
 	# train_data, train_lable = data_get.next_train_batch(50)
 	train_data, train_lable = data_get.get_test_data()
