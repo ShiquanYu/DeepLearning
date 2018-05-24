@@ -27,6 +27,8 @@ def main():
 	x = tf.placeholder('float',[None,30,30,3])	
 	y_ = tf.placeholder('float',[None,2])
 	#第一层卷积层
+	# W_conv1 = weight_variable([5, 5, 3, 64])	#[5, 5, 3, 64]
+	# b_conv1 = bias_variable([64])				#[64]
 	W_conv1 = weight_variable([5, 5, 3, 64])	#[5, 5, 3, 64]
 	b_conv1 = bias_variable([64])				#[64]
 	#进行卷积操作，并添加relu激活函数
@@ -42,15 +44,18 @@ def main():
 	# norm2
 	norm2 = tf.nn.lrn(conv2, 4, bias=1.0, alpha=0.001 / 9.0, beta=0.75,name='norm2')
 	# pool2
-	pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool2')	#TODO changed get shape(5, 5) ksize=[1, 3, 3, 1],strides=[1, 2, 2, 1]
+	# pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1],strides=[1, 2, 2, 1], padding='SAME', name='pool2')	#TODO changed get shape(5, 5) ksize=[1, 3, 3, 1],strides=[1, 2, 2, 1]
+	pool2 = tf.nn.max_pool(norm2, ksize=[1, 3, 3, 1],strides=[1, 3, 3, 1], padding='SAME', name='pool2')	#TODO changed get shape(5, 5) ksize=[1, 3, 3, 1],strides=[1, 2, 2, 1]
 
 	#全连接层
 	#权值参数
-	W_fc1 = weight_variable([8*8*64,384])	#([8*8*64,384])
+	# W_fc1 = weight_variable([8*8*64,384])	#([8*8*64,384])
+	W_fc1 = weight_variable([5*5*64,384])	#([8*8*64,384])
 	#偏置值
 	b_fc1 = bias_variable([384])
 	#将卷积的产出展开
-	pool2_flat = tf.reshape(pool2,[-1,8*8*64])
+	# pool2_flat = tf.reshape(pool2,[-1,8*8*64])
+	pool2_flat = tf.reshape(pool2,[-1,5*5*64])
 	#神经网络计算，并添加relu激活函数
 	fc1 = tf.nn.relu(tf.matmul(pool2_flat,W_fc1) + b_fc1)
 	
@@ -98,7 +103,6 @@ def main():
 	#所有变量进行初始化
 	sess.run(tf.global_variables_initializer())
 
-
 	male_dir = '../../data/FemaleMaleFace_30x30/1_Male.npy'	#sys.argv[1]#
 	female_dir = '../../data/FemaleMaleFace_30x30/0_Female.npy'	#sys.argv[2]#
 	male_female_data_set = get_data.GetMaleFemaleData(male_dir, female_dir)
@@ -120,7 +124,9 @@ def main():
 			print "step %d, training accuracy %g"%(i, train_accuracy)
 			#计算间隔时间
 			end_time = time.time()
-			print 'time: ',(end_time - start_time)
+			print "____________________"
+			print "System time :"+time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+			print 'time per batch: ',(end_time - start_time)
 			start_time = end_time
 
 
@@ -135,6 +141,8 @@ def main():
 			if not tf.gfile.Exists('model_data'):
 				tf.gfile.MakeDirs('model_data')
 			save_path = saver.save(sess, "model_data/model.ckpt")
+			print "____________________"
+			print "System time :"+time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
 			print "Model saved in file: ", save_path
 
 		train_step.run(feed_dict={x: batch_xs, y_: batch_ys, keep_prob: 0.5})

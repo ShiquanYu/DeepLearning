@@ -33,7 +33,7 @@ class GetMaleFemaleData(object):
 		isPathExist(female_dir)
 		male_data = np.load(male_dir)
 		female_data = np.load(female_dir)
-		test_data_len = 50
+		test_data_len = 1000
 
 		male_test_data = male_data[-test_data_len-1:-1]
 		male_test_lable = np.zeros(male_test_data.shape[0], dtype = np.int)
